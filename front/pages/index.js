@@ -22,7 +22,6 @@ const Home = () => {
             // scrollY: 얼마나 내렸는지
             // clientHeight: 화면 보이는 길이
             // scrollHeight: 총길이
-            console.log(window.scrollY, document.documentElement.clientHeight, document.documentElement.scrollHeight)
             if (window.scrollY + document.documentElement.clientHeight > document.documentElement.scrollHeight - 300) {
                 // 인피니트 스크롤 (나중에 react virtualrized 기술 사용해볼것)
                 if (hasMorePost && !loadPostsLoading) {

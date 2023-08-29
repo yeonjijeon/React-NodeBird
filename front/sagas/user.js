@@ -1,7 +1,7 @@
 import { all, fork, put, takeLatest, delay } from 'redux-saga/effects'
-import { LOG_IN_FAILURE, LOG_IN_REQUEST, LOG_IN_SUCCESS, 
+import { FOLLOW_FAILURE, FOLLOW_REQUEST, FOLLOW_SUCCESS, LOG_IN_FAILURE, LOG_IN_REQUEST, LOG_IN_SUCCESS, 
          LOG_OUT_FAILURE, LOG_OUT_REQUEST, LOG_OUT_SUCCESS,
-         SIGN_UP_FAILURE, SIGN_UP_REQUEST, SIGN_UP_SUCCESS } from '../reducers/user'
+         SIGN_UP_FAILURE, SIGN_UP_REQUEST, SIGN_UP_SUCCESS, UNFOLLOW_FAILURE, UNFOLLOW_REQUEST, UNFOLLOW_SUCCESS } from '../reducers/user'
 import axios from 'axios'
 
 function loginAPI(data) {
@@ -16,13 +16,19 @@ function signUpAPI() {
     return axios.post('/api/signUp')
 }
 
+function followAPI() {
+    return axios.post('/api/follow')
+}
+
+function unfollowAPI() {
+    return axios.post('/api/unfollow')
+}
+
 function* login(action) {
     try {
         // const result = yield call(loginAPI, action.data)
         yield delay(1000)
         // fork는 비동기 함수 호출, call 동기함수 호출
-        console.log("DDD")
-        console.log(action.data)
         yield put({
             type: LOG_IN_SUCCESS,
             data: action.data
@@ -55,8 +61,6 @@ function* logOut() {
     }
 }
 
-
-
 function* signUp() {
     try {
         yield delay(1000)
@@ -69,6 +73,36 @@ function* signUp() {
             error: err.response.data
         })
 
+    }
+}
+
+function* follow(action) {
+    try {
+        yield delay(1000)
+        yield put({
+            type: FOLLOW_SUCCESS,
+            data: action.data,
+        })
+    } catch(err) {
+        yield put({
+            type: FOLLOW_FAILURE,
+            error: err.response.data
+        })
+    }
+}
+
+function* unfollow(action) {
+    try {
+        yield delay(1000)
+        yield put({
+            type: UNFOLLOW_SUCCESS,
+            data: action.data,
+        })
+    } catch(err) {
+        yield put({
+            type: UNFOLLOW_FAILURE,
+            error: err.response.data
+        })
     }
 }
 
@@ -86,11 +120,20 @@ function* watchSignUp() {
     yield takeLatest(SIGN_UP_REQUEST, signUp)
 }
 
+function* watchFollow() {
+    yield takeLatest(FOLLOW_REQUEST, follow)
+}
+
+function* watchUnfollow() {
+    yield takeLatest(UNFOLLOW_REQUEST, unfollow)
+}
 
 export default function* userSaga() {
     yield all([
       fork(watchLogIn),
       fork(watchLogOut),
-      fork(watchSignUp)
+      fork(watchSignUp),
+      fork(watchFollow),
+      fork(watchUnfollow),
     ])
 }

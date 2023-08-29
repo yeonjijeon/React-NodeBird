@@ -21,6 +21,14 @@ export const initialState = {
     changeNickDone: false,
     changeNickError: null,
 
+    followLoading: false, // 팔로우 로딩
+    followDone: false,
+    followError: null,
+
+    unfollowLoading: false, // 언팔로우 로딩
+    unfollowDone: false,
+    unfollowError: null,
+
     me: null,
     signUpData: {},
     loginData: {},
@@ -169,6 +177,42 @@ const reducer = (state = initialState, action) => {
                 
             case REMOVE_POST_OF_ME:
                 draft.me.Posts = draft.me.Posts.fillter((v) => v.id !== action.data)
+                break
+
+            // 팔로우
+            case FOLLOW_REQUEST :
+                draft.followLoading = true
+                draft.followError = null
+                draft.followDone = false
+                break
+            
+            case FOLLOW_SUCCESS :
+                draft.followLoading = false
+                draft.followDone = true
+                draft.me.Followings.push({ id: action.data })
+                break
+
+            case FOLLOW_FAILURE :
+                draft.followLoading = false
+                draft.followError = action.error
+                break
+
+            // 언팔로우
+            case UNFOLLOW_REQUEST :
+                draft.unfollowLoading = true
+                draft.unfollowError = null
+                draft.unfollowDone = false
+                break
+            
+            case UNFOLLOW_SUCCESS :
+                draft.unfollowLoading = false
+                draft.unfollowDone = true
+                draft.me.Followings = draft.me.Followings.filter((v) => v.id !== action.data)
+                break
+
+            case UNFOLLOW_FAILURE :
+                draft.unfollowLoading = false
+                draft.unfollowError = action.error
                 break
 
             default:
