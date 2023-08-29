@@ -1,10 +1,18 @@
 import shortId from 'shortid'
 import produce from '../util/produce';
 import { faker } from '@faker-js/faker';
+faker.seed(123)
 
 export const initialState = {
     mainPosts: [],
     imagePaths: [],
+
+    hasMorePost : true,
+
+    loadPostsLoading: false,
+    loadPostsDone: false,
+    loadPostsError: false,
+
     addPostLoading: false,
     addPostDone: false,
     addPostError: false,
@@ -19,8 +27,7 @@ export const initialState = {
 }
 
 
-export const generateDummyPost = (number) => {
-    faker.seed(123)
+export const generateDummyPost = (number) => 
     Array(number).fill().map(() => ({
         id: shortId.generate(),
         User: {
@@ -40,31 +47,11 @@ export const generateDummyPost = (number) => {
             content: faker.lorem.sentence(),
         }]
     }))
-}
 
-faker.seed(123)
-initialState.mainPosts = initialState.mainPosts.concat(
-    Array(20).fill().map(() => ({
-        id: shortId.generate(),
-        User: {
-            id: shortId.generate(),
-            nickname: faker.person.fullName()
-        },
-        content: faker.lorem.sentence(),
-        Images: [{
-            src: faker.image.url()
-        }],
-        Comments: [{
-            id : shortId.generate(),
-            User: {
-                id : shortId.generate(),
-                nickname : faker.person.fullName(),
-            },
-            content: faker.lorem.sentence(),
-        }]
-    }))
-    
-    )
+export const LOAD_POSTS_REQUEST = 'LOAD_POSTS_REQUEST'
+export const LOAD_POSTS_SUCCESS = 'LOAD_POSTS_SUCCESS'
+export const LOAD_POSTS_FAILURE = 'LOAD_POSTS_FAILURE'
+
 
 export const ADD_POST_REQUEST = 'ADD_POST_REQUEST'
 export const ADD_POST_SUCCESS = 'ADD_POST_SUCCESS'
@@ -112,6 +99,25 @@ const dummyComment = (data) => ({
 const reducer = (state = initialState, action) => {
     return produce(state, (draft) => {
         switch(action.type) {
+            // 글 불러오기
+            case LOAD_POSTS_REQUEST:
+                draft.loadPostsLoading = true
+                draft.loadPostsDone = false
+                draft.loadPostsError = null
+                break
+
+            case LOAD_POSTS_SUCCESS:
+                draft.loadPostsLoading = false
+                draft.loadPostsDone = true
+                draft.mainPosts = action.data.concat(draft.mainPosts)
+                draft.hasMorePost = draft.mainPosts.length < 50
+                break
+
+            case LOAD_POSTS_FAILURE:    
+                draft.loadPostsLoading = false
+                draft.loadPostsDone = action.error
+                break
+
             // 글 게시
             case ADD_POST_REQUEST:
                 draft.addPostLoading = true
